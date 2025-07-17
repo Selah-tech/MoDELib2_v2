@@ -58,6 +58,11 @@ double SecondPhase<dim>::misfitEnergy(const VectorDim& b,const size_t& planeID) 
     return misfitEnergy(b,planes.at(planeID).get());
 }
 
+template<int dim>
+std::shared_ptr<GammaSurface> SecondPhase<dim>::gammaSurface(const size_t& planeID) const
+{
+    return gsMap.at(planes.at(planeID).get());
+}
     
 template struct SecondPhase<3>;
 }

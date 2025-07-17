@@ -35,6 +35,7 @@ namespace model
                     const PlaneNormalContainerType&);
         double misfitEnergy(const VectorDim& s,const GlidePlaneBase* const gpb) const;
         double misfitEnergy(const VectorDim& s,const size_t&) const;
+        std::shared_ptr<GammaSurface> gammaSurface(const size_t&) const;
 
     };
 }

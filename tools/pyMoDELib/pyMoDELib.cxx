@@ -40,7 +40,9 @@
 #include <DefectiveCrystal.h>
 #include <MicrostructureGenerator.h>
 #include <DislocationMobilityBCC.h>
+#include <DislocationMobilityPy.h>
 #include <GlidePlaneNoiseBase.h>
+#include <PeriodicLatticeInterpolant.h>
 
 using namespace model;
 // https://pybind11.readthedocs.io/en/stable/advanced/cast/eigen.html
@@ -232,8 +234,14 @@ PYBIND11_MODULE(pyMoDELib,m)
 //        .def(py::init<const typename LatticeVector<3>::LatticeType&>())
     ;
 
+
+    py::class_<PeriodicLatticeInterpolant<2>,std::shared_ptr<PeriodicLatticeInterpolant<2>>>(m,"PeriodicLatticeInterpolant")
+        .def_readonly("A", &PeriodicLatticeInterpolant<2>::A)
+        .def_readonly("B", &PeriodicLatticeInterpolant<2>::B)
+        .def_readonly("waveVectors", &PeriodicLatticeInterpolant<2>::waveVectors)
+    ;
     
-    py::class_<GammaSurface>(m,"GammaSurface")
+    py::class_<GammaSurface,PeriodicLatticeInterpolant<2>,std::shared_ptr<GammaSurface>>(m,"GammaSurface")
         .def(py::init<const Eigen::Matrix<double,2,2>&,
              const Eigen::Matrix<double,Eigen::Dynamic,2>&,
              const Eigen::Matrix<double,Eigen::Dynamic,3>&,
@@ -246,6 +254,7 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def("misfitEnergy", &GlidePlaneBase::misfitEnergy)
         .def("localSlipVector", &GlidePlaneBase::localSlipVector)
         .def_readonly("primitiveVectors", &GlidePlaneBase::primitiveVectors)
+        .def_readonly("gammaSurface", &GlidePlaneBase::gammaSurface)
     ;
 
     py::class_<SlipSystem,std::shared_ptr<SlipSystem>>(m,"SlipSystem")
@@ -262,7 +271,7 @@ PYBIND11_MODULE(pyMoDELib,m)
 //        .def("misfitEnergy", static_cast<double (SecondPhase<3>::*)(Eigen::Ref<const Eigen::Matrix<double,3,1>>,const size_t&) const>(&SecondPhase<3>::misfitEnergy))
 //        .def_readonly("gsMap", &SecondPhase<3>::gsMap)
         .def("misfitEnergy",static_cast<double (SecondPhase<3>::*)(const Eigen::Matrix<double,3,1>&,const size_t&) const>(&SecondPhase<3>::misfitEnergy))
-
+        .def("gammaSurface", &SecondPhase<3>::gammaSurface)
     ;
 
     //    py::bind_vector<std::vector<std::shared_ptr<GlidePlaneBase>>>(m, "GlidePlaneBasePtrVector"); // THIS GIVES ERROR
@@ -675,14 +684,16 @@ PYBIND11_MODULE(pyMoDELib,m)
     ;
     
     py::class_<DislocationMobilityBCC>(m,"DislocationMobilityBCC")
-//        .def(py::init<const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&,const double&>())
         .def(py::init<const PolycrystallineMaterialBase&>())
-//        .def("velocity", &DislocationMobilityBCC::velocity)
-//        .def("myVelocity", static_cast<double (DislocationMobilityBCC::*)(Eigen::Ref<const Eigen::Matrix<double,3,3>>,Eigen::Ref<const Eigen::Matrix<double,3,1>>,Eigen::Ref<const Eigen::Matrix<double,3,1>>,Eigen::Ref<const Eigen::Matrix<double,3,1>>,const double&)>(&DislocationMobilityBCC::myVelocity))
         .def("velocity", static_cast<double (DislocationMobilityBCC::*)(const Eigen::Matrix<double,3,3>&,const Eigen::Matrix<double,3,1>&,const Eigen::Matrix<double,3,1>&,const Eigen::Matrix<double,3,1>&,const double&)>(&DislocationMobilityBCC::velocity))
-
     ;
-    //    ,static_cast<double (DislocationMobilityBCC:*)() const>(&SimplicialMesh<3>::xMin)
+
+//    py::class_<DislocationMobilityPy>(m,"DislocationMobilityPy")
+//        .def(py::init<const PolycrystallineMaterialBase&>())
+//        .def("velocity", static_cast<double (DislocationMobilityPy::*)(const Eigen::Matrix<double,3,3>&,const Eigen::Matrix<double,3,1>&,const Eigen::Matrix<double,3,1>&,const Eigen::Matrix<double,3,1>&,const double&)>(&DislocationMobilityPy::velocity))
+//    ;
+
+
     
 
     
