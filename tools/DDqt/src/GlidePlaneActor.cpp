@@ -97,8 +97,10 @@ namespace model
     /* init */,grainNoiseBox(new QComboBox(this))
     /* init */,slipSystemNoiseBox(new QComboBox(this))
     /* init */,glidePlanesNoiseBox(new QComboBox(this))
-    /* init */,ssNoiseMin(new QLineEdit("0.0"))
-    /* init */,ssNoiseMax(new QLineEdit("0.0"))
+    /* init */,ss1NoiseMin(new QLineEdit("0.0"))
+    /* init */,ss1NoiseMax(new QLineEdit("0.0"))
+    /* init */,ss2NoiseMin(new QLineEdit("0.0"))
+    /* init */,ss2NoiseMax(new QLineEdit("0.0"))
     /* init */,sfNoiseMin(new QLineEdit("0.0"))
     /* init */,sfNoiseMax(new QLineEdit("0.0"))
     /* init */,noisePolydata(vtkSmartPointer<vtkPolyData>::New())
@@ -155,10 +157,12 @@ namespace model
         noiseLayout->addWidget(grainNoiseBox,1,1,1,1);
         noiseLayout->addWidget(slipSystemNoiseBox,2,0,1,1);
         noiseLayout->addWidget(glidePlanesNoiseBox,2,1,1,1);
-        noiseLayout->addWidget(ssNoiseMin,3,0,1,1);
-        noiseLayout->addWidget(ssNoiseMax,3,1,1,1);
-        noiseLayout->addWidget(sfNoiseMin,4,0,1,1);
-        noiseLayout->addWidget(sfNoiseMax,4,1,1,1);
+        noiseLayout->addWidget(ss1NoiseMin,3,0,1,1);
+        noiseLayout->addWidget(ss1NoiseMax,3,1,1,1);
+        noiseLayout->addWidget(ss2NoiseMin,4,0,1,1);
+        noiseLayout->addWidget(ss2NoiseMax,4,1,1,1);
+        noiseLayout->addWidget(sfNoiseMin,5,0,1,1);
+        noiseLayout->addWidget(sfNoiseMax,5,1,1,1);
         
         QGridLayout *stackingFaultLayout = new QGridLayout();
         stackingFaultLayout->addWidget(sfeMinEdit,0,0,1,1);
@@ -177,8 +181,10 @@ namespace model
         
         connect(glidePlanesNoiseBox,SIGNAL(currentIndexChanged(int)), this, SLOT(modify()));
         connect(slipSystemNoiseBox,SIGNAL(currentIndexChanged(int)), this, SLOT(computeGlidePlaneNoise()));
-        connect(ssNoiseMin,SIGNAL(returnPressed()), this, SLOT(modify()));
-        connect(ssNoiseMax,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(ss1NoiseMin,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(ss1NoiseMax,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(ss2NoiseMin,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(ss2NoiseMax,SIGNAL(returnPressed()), this, SLOT(modify()));
         connect(sfNoiseMin,SIGNAL(returnPressed()), this, SLOT(modify()));
         connect(sfNoiseMax,SIGNAL(returnPressed()), this, SLOT(modify()));
         connect(noiseMeshSizeEdit,SIGNAL(returnPressed()), this, SLOT(computeGlidePlaneNoise()));
@@ -234,13 +240,14 @@ namespace model
             const auto& slipSystem(grain->slipSystems().at(selectedSlipSystemID));
             const auto& planeNoise(slipSystem->planeNoise);
 
-  
             size_t nodeIDoffset(0);
             double meshSize;
             std::stringstream ssM(noiseMeshSizeEdit->text().toStdString());
             if(ssM >> meshSize)
             {
-                noiseMeshSizeEdit->setStyleSheet("background-color: white");
+                ///noiseMeshSizeEdit->setStyleSheet("background-color: white");
+                // reference palette colors directly
+                noiseMeshSizeEdit->setStyleSheet("background-color: palette(base)");
                 
                 if(planeNoise)
                 {
@@ -272,6 +279,13 @@ namespace model
                                     valuesMinMax[1]=std::make_pair(std::min(valuesMinMax[1].first,std::get<1>(noiseValues.back())),std::max(valuesMinMax[1].second,std::get<1>(noiseValues.back())));
                                     valuesMinMax[2]=std::make_pair(std::min(valuesMinMax[2].first,std::get<2>(noiseValues.back())),std::max(valuesMinMax[2].second,std::get<2>(noiseValues.back())));
                                 }
+
+                                ss1NoiseMin->setText(QString::number((valuesMinMax[0].first)));
+                                ss1NoiseMax->setText(QString::number((valuesMinMax[0].second)));
+                                ss2NoiseMin->setText(QString::number((valuesMinMax[1].first)));
+                                ss2NoiseMax->setText(QString::number((valuesMinMax[1].second)));
+                                sfNoiseMin->setText(QString::number((valuesMinMax[2].first)));
+                                sfNoiseMax->setText(QString::number((valuesMinMax[2].second)));
                                 
                                 for(const auto& tri : triMesh.triangles())
                                 {
@@ -311,12 +325,16 @@ void GlidePlaneActor::computeStackingFaults()
         std::stringstream ssMin(sfeMinEdit->text().toStdString());
         if(ssMin >> sfeMin)
         {
-            sfeMinEdit->setStyleSheet("background-color: white");
+            //sfeMinEdit->setStyleSheet("background-color: white");
+            // reference palette colors directly
+            sfeMinEdit->setStyleSheet("background-color: palette(base)");
             double sfeMax;
             std::stringstream ssMax(sfeMaxEdit->text().toStdString());
             if(ssMax >> sfeMax)
             {
-                sfeMaxEdit->setStyleSheet("background-color: white");
+                //sfeMaxEdit->setStyleSheet("background-color: white");
+                // reference palette colors directly
+                sfeMaxEdit->setStyleSheet("background-color: palette(base)");
                 
                 stackingFaultLut->SetTableRange(sfeMin, sfeMax);
                 double dclr[3];
@@ -495,6 +513,7 @@ void GlidePlaneActor::computeStackingFaults()
             double dclr[3];
             unsigned char cclr[3];
             lut->SetTableRange(valuesMinMax[glidePlanesNoiseBox->currentIndex()].first, valuesMinMax[glidePlanesNoiseBox->currentIndex()].second);
+            //SetScalarRange(ss1NoiseMin->text().toDouble(), ss1NoiseMax->text().toDouble());
             
             for(const auto& tup : noiseValues)
             {

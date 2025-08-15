@@ -20,7 +20,6 @@ namespace model
 
     template<int dim>
     struct ClusterDynamics : public MicrostructureBase<dim>
-//    /*                   */, public ClusterDynamicsFEM<dim>
     {
         
 //        typedef Eigen::SparseMatrix<double> SparseMatrixType;

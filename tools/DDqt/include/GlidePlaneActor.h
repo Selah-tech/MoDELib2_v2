@@ -97,8 +97,10 @@ namespace model
         QComboBox* grainNoiseBox;
         QComboBox* slipSystemNoiseBox;
         QComboBox* glidePlanesNoiseBox;
-        QLineEdit* ssNoiseMin;
-        QLineEdit* ssNoiseMax;
+        QLineEdit* ss1NoiseMin;
+        QLineEdit* ss1NoiseMax;
+        QLineEdit* ss2NoiseMin;
+        QLineEdit* ss2NoiseMax;
         QLineEdit* sfNoiseMin;
         QLineEdit* sfNoiseMax;
 

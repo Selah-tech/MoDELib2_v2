@@ -239,6 +239,7 @@ PYBIND11_MODULE(pyMoDELib,m)
         .def_readonly("A", &PeriodicLatticeInterpolant<2>::A)
         .def_readonly("B", &PeriodicLatticeInterpolant<2>::B)
         .def_readonly("waveVectors", &PeriodicLatticeInterpolant<2>::waveVectors)
+        .def_readonly("points", &PeriodicLatticeInterpolant<2>::points)
     ;
     
     py::class_<GammaSurface,PeriodicLatticeInterpolant<2>,std::shared_ptr<GammaSurface>>(m,"GammaSurface")
@@ -247,6 +248,8 @@ PYBIND11_MODULE(pyMoDELib,m)
              const Eigen::Matrix<double,Eigen::Dynamic,3>&,
              const int&,
              const std::vector<Eigen::Matrix<double,2,1>>&>())
+        .def("misfitEnergy", &GammaSurface::misfitEnergy)
+
     ;
     
     py::class_<GlidePlaneBase,std::shared_ptr<GlidePlaneBase>>(m,"GlidePlaneBase")

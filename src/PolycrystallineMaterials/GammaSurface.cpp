@@ -29,5 +29,11 @@ GammaSurface::GammaSurface(const MatrixLowerDim& A,
     std::cout<<greenColor<<"Creating GammaSurface with local basis\n "<<defaultColor<<this->A<<std::endl;
 }
 
+double GammaSurface::misfitEnergy(const VectorLowerDim& b) const
+{
+    return this->operator()(b);
+}
+
+
 }
 #endif

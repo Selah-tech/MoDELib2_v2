@@ -321,16 +321,20 @@ namespace model
             if(node)
             {
                 return eval(elasticDeformationFEM->u)(*node);
+//                return eval(elasticDeformationFEM->u)(*node)+eval(elasticDeformationFEM->z)(*node);
             }
             else
             {
                 if(ele)
                 {
                     return eval(elasticDeformationFEM->u)(*ele,ele->simplex.pos2bary(x));
+//                    return eval(elasticDeformationFEM->u)(*ele,ele->simplex.pos2bary(x))+eval(elasticDeformationFEM->z)(*ele,ele->simplex.pos2bary(x));
+
                 }
                 else
                 {
                     return eval(elasticDeformationFEM->u)(x,guess);
+//                    return eval(elasticDeformationFEM->u)(x,guess)+eval(elasticDeformationFEM->z)(x,guess);
                 }
             }
         }

@@ -9,8 +9,9 @@ project(MoDELib VERSION 2.0.0 LANGUAGES C CXX)
 
 option(USE_PYBIND11 "enables pybind11" ON)
 option(BUILD_TOOLS "builds tools" ON)
-set(EIGEN3_INCLUDE_DIRS /opt/local/include/eigen3)
+#set(EIGEN3_INCLUDE_DIRS /opt/local/include/eigen3)
 list(APPEND CMAKE_PREFIX_PATH "/Users/Giacomo/Applications/Qt/6.5.2/macos/lib/cmake")
+set(VTK_DIR "/Users/anon/Programs/VTK/vtk/build")
 set(RPATH "/opt/local/lib/gcc14")
 list(APPEND CMAKE_BUILD_RPATH ${RPATH})
 
@@ -22,6 +23,15 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -fopenmp -O3 -Wno-unused-variab
 #set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 #set(CMAKE_AUTOUIC ON)
+
+### Eigen3 ###
+find_package(Eigen3 REQUIRED)
+if(Eigen3_FOUND)
+  message(STATUS "Eigen3_VERSION:" ${Eigen3_VERSION})
+  include_directories(${EIGEN3_INCLUDE_DIRS})
+else()
+  message(ERROR "Eigen3 not found")
+endif()
 
 ### Boost ### 
 find_package(Boost)
@@ -93,7 +103,7 @@ else()
 endif()
 
 set(MoDELib_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-include_directories ( ${EIGEN3_INCLUDE_DIRS} )
+#include_directories ( ${EIGEN3_INCLUDE_DIRS} )
 include_directories(${MoDELib_INCLUDE_DIR}/Utilities/)
 include_directories(${MoDELib_INCLUDE_DIR}/IO/)
 include_directories(${MoDELib_INCLUDE_DIR}/Math/)

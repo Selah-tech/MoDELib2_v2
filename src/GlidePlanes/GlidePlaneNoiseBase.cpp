@@ -8,6 +8,7 @@
 #ifndef model_GlidePlaneNoiseBase_cpp
 #define model_GlidePlaneNoiseBase_cpp
 
+#include <numbers>
 #include <chrono>
 #include <GlidePlaneNoiseBase.h>
 #include <TerminalColors.h>
@@ -143,11 +144,12 @@ std::vector<typename GlidePlaneNoiseBase<N>::COMPLEX*> GlidePlaneNoiseBase<N>::o
 
         const Eigen::Matrix<double,3,1> kv((Eigen::Matrix<double,3,1>()<<kx,ky,kz).finished());
         const Eigen::Matrix<int,3,1> kvID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
-        const double kCorrFactor(NZ>1 ? ((k==0 || k==NZ/2)? 1.0 : 2.0) : ((j==0 || j==NY/2)? 1.0 : 2.0)); // /!\ special case for k=0 and k==NZ/2 because of folding of C2R Fourier transform
+//        const double kCorrFactor(NZ>1 ? ((k==0 || k==NZ/2)? 1.0 : 2.0) : ((j==0 || j==NY/2)? 1.0 : 2.0)); // /!\ special case for k=0 and k==NZ/2 because of folding of C2R Fourier transform
         const auto kCorr(kCorrelations(kv,kvID));
         for(int n=0;n<N;++n)
         {
-          okCorr[n][ind]=sqrt(kCorr[n]/kCorrFactor);
+//          okCorr[n][ind]=sqrt(kCorr[n]/kCorrFactor);
+            okCorr[n][ind]=sqrt(kCorr[n]);
         }
       }
     }
@@ -175,7 +177,7 @@ std::vector<typename GlidePlaneNoiseBase<N>::COMPLEX*> GlidePlaneNoiseBase<N>::n
     const REAL_SCALAR Mk = distribution(generator);
     for(int n=0;n<N;++n)
     {
-      nkCorr[n][ind]=okCorr[n][ind]*(Nk+Mk*COMPLEX(0.0,1.0));
+      nkCorr[n][ind]=okCorr[n][ind]*COMPLEX(Nk,Mk)/std::numbers::sqrt2;
     }
   }
 

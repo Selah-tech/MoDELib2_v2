@@ -46,37 +46,21 @@ namespace model
     double DislocationClimbSolverBase<DislocationNetworkType>::getVclimbRef() const
     {
         double vRef(0.0);
-            const auto eqC(CD->cdp.equilibriumMobileConcentration(0.0));
-            for(const auto& pair : CD->cdp.D)
+        const auto eqC(CD->cdp.equilibriumMobileConcentration(0.0));
+        for(const auto& pair : CD->cdp.D)
+        {
+            const auto& dVec(pair.second);
+            for(int m=0;m<CD->cdp.mSize;++m)
             {
-                const auto& dVec(pair.second);
-                for(int m=0;m<CD->cdp.mSize;++m)
-                {
-                    vRef=std::max(vRef,dVec[m].trace()*eqC[m]/3.0/this->DN.ddBase.poly.b);
-                }
+                vRef=std::max(vRef,dVec[m].trace()*eqC[m]/3.0/this->DN.ddBase.poly.b);
             }
+        }
         return  vRef;
     }
 
-//    template <typename DislocationNetworkType>
-//    const ClusterDynamics<DislocationClimbSolverFactory<DislocationNetworkType>::dim>*  DislocationClimbSolverFactory<DislocationNetworkType>::getCD(const DislocationNetworkType& DN)
-//    {
-//        const auto cdMicrostructures(DN.microstructures.template getTypedMicrostructures<ClusterDynamics<dim>>());
-//        if(cdMicrostructures.size()==1)
-//        {
-//            return *cdMicrostructures.begin();
-//        }
-//        else
-//        {
-//            std::cout<<"Found "<<cdMicrostructures.size()<<" microstructures of type ClusterDynamics<"<<dim<<">"<<std::endl;
-//            return nullptr;
-//        }
-//    }
-
     template <typename DislocationNetworkType>
     std::shared_ptr<DislocationClimbSolverBase<DislocationNetworkType>> DislocationClimbSolverFactory<DislocationNetworkType>::getClimbSolver(const DislocationNetworkType& DN,const std::string& solverType)
-{
-//        const ClusterDynamics<DislocationClimbSolverFactory<DislocationNetworkType>::dim>* CD(getCD(DN));
+    {
         const auto CD(DN.microstructures.template getUniqueTypedMicrostructure<ClusterDynamics<dim>>());
         if(CD)
         {

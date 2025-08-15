@@ -28,8 +28,8 @@ namespace model
         return temp/sqrt(2.0);
     }
 
-typename FCClattice<3>::PlaneNormalContainerType FCClattice<3>::planeNormals(const PolycrystallineMaterialBase& material,
-                                                                             const Lattice<dim>& lat)
+    typename FCClattice<3>::PlaneNormalContainerType FCClattice<3>::planeNormals(const PolycrystallineMaterialBase& material,
+                                                                                 const Lattice<dim>& lat)
     {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
       * the slip plane normals of the FCC lattice
       */
@@ -38,46 +38,36 @@ typename FCClattice<3>::PlaneNormalContainerType FCClattice<3>::planeNormals(con
         LatticeVectorType a3((VectorDimI()<<0,0,1).finished(),lat);
         
         PlaneNormalContainerType temp;
-                    
-            const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
-            const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
-            const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
-            
-            const Eigen::Matrix<double,3,2> waveVectors((Eigen::Matrix<double,3,2>()<<0.0, 0.0,
-                                                         /*                        */ 0.0, 1.0,
-                                                         /*                        */ 1.0,-1.0
-                                                         ).finished());
-            
-            const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0,
-                                               /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
-                                               /*                        */ 0.25,sqrt(3.0)/12.0,USF,
-                                               /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
-            
-            const int rotSymm(3);
-            const std::vector<Eigen::Matrix<double,2,1>> mirSymm;
-            const Eigen::Matrix<double,2,2> A(GlidePlaneBase(a1,a3,nullptr).localBasis());
-
-//            const Eigen::Matrix<double,2,2> A((Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
-//                                                                             0.0,0.5*std::sqrt(3.0)).finished());
-    
-    
-//    std::cout<<"A=\n"<<A<<std::endl;
-//    std::cout<<"A1=\n"<<A1<<std::endl;
-
-
-            std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(A,waveVectors,f,rotSymm,mirSymm));
-  
+        
+        const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
+        const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
+        const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
+        
+        const Eigen::Matrix<double,3,2> waveVectors((Eigen::Matrix<double,3,2>()<<0.0, 0.0,
+                                                     /*                        */ 0.0, 1.0,
+                                                     /*                        */ 1.0,-1.0).finished());
+        
+        const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0,
+                                           /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
+                                           /*                        */ 0.25,sqrt(3.0)/12.0,USF,
+                                           /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
+        
+        const int rotSymm(3);
+        const std::vector<Eigen::Matrix<double,2,1>> mirSymm;
+        const Eigen::Matrix<double,2,2> A(GlidePlaneBase(a1,a3,nullptr).localBasis());
+        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(A,waveVectors,f,rotSymm,mirSymm));
+        
         temp.emplace(temp.size(),new GlidePlaneBase(a1,a3,gammaSurface));           // is (-1, 1,-1) in cartesian
         temp.emplace(temp.size(),new GlidePlaneBase(a3,a2,gammaSurface));           // is ( 1,-1,-1) in cartesian
         temp.emplace(temp.size(),new GlidePlaneBase(a2,a1,gammaSurface));           // is (-1,-1, 1) in cartesian
         temp.emplace(temp.size(),new GlidePlaneBase(a1-a3,a2-a3,gammaSurface));     // is ( 1, 1, 1) in cartesian
-    
+        
         return temp;
     }
 
-typename FCClattice<3>::SlipSystemContainerType FCClattice<3>::slipSystems(const PolycrystallineMaterialBase& material,
-                                                                              const Lattice<dim>& lat,
-                                                                              const PlaneNormalContainerType& plN)
+    typename FCClattice<3>::SlipSystemContainerType FCClattice<3>::slipSystems(const PolycrystallineMaterialBase& material,
+                                                                               const Lattice<dim>& lat,
+                                                                               const PlaneNormalContainerType& plN)
     {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
       * the slip systems of the Hexagonal lattice
       */
@@ -85,9 +75,9 @@ typename FCClattice<3>::SlipSystemContainerType FCClattice<3>::slipSystems(const
         const std::string dislocationMobilityType(TextFileParser(material.materialFile).readString("dislocationMobilityType",true));
         DislocationMobilitySelector mobilitySelector("FCC");
         const std::shared_ptr<DislocationMobilityBase> fccMobility(mobilitySelector.getMobility(dislocationMobilityType,material));
-
+        
         std::shared_ptr<GlidePlaneNoise> planeNoise(new GlidePlaneNoise(material));
-
+        
         const double d111(lat.reciprocalLatticeDirection(lat.C2G*(VectorDimD()<<1.0,1.0,1.0).finished()).planeSpacing());
         
         SlipSystemContainerType temp;
@@ -101,7 +91,7 @@ typename FCClattice<3>::SlipSystemContainerType FCClattice<3>::slipSystems(const
                 const auto b1(a1);
                 const auto b2(a3-a1);
                 const auto b3(a3*(-1));
-
+                
                 std::vector<RationalLatticeDirection<3>> slipDirs;
                 
                 if(   material.enabledSlipSystems.find("Full")!=material.enabledSlipSystems.end()
@@ -150,14 +140,14 @@ typename FCClattice<3>::SlipSystemContainerType FCClattice<3>::slipSystems(const
 
 
     typename FCClattice<3>::SecondPhaseContainerType FCClattice<3>::secondPhases(const PolycrystallineMaterialBase& material,
-                                                                                    const Lattice<dim>& lat,
-                                                                                    const PlaneNormalContainerType& plN)
+                                                                                 const Lattice<dim>& lat,
+                                                                                 const PlaneNormalContainerType& plN)
     {
         
         LatticeVectorType a1((VectorDimI()<<1,0,0).finished(),lat);
         LatticeVectorType a2((VectorDimI()<<0,1,0).finished(),lat);
         LatticeVectorType a3((VectorDimI()<<0,0,1).finished(),lat);
-
+        
         
         SecondPhaseContainerType temp;
         
@@ -171,14 +161,11 @@ typename FCClattice<3>::SlipSystemContainerType FCClattice<3>::slipSystems(const
                 const double CISF(TextFileParser(material.materialFile).readScalar<double>("CISF_SI",true)/(material.mu_SI*material.b_SI));
                 const double SESF(TextFileParser(material.materialFile).readScalar<double>("SESF_SI",true)/(material.mu_SI*material.b_SI));
                 
-                
-//                CHANGE waveVectors111 and A111
-                
                 const Eigen::Matrix<double,4,2> waveVectors111((Eigen::Matrix<double,4,2>()<<0.0, 0.0,
-                                                                    /*                        */ 0.0, 1.0,
-                                                                    /*                        */ 1.0,-1.0,
-//                                                                    /*                        */ 1.0,1.0,
-                                                                    /*                        */ 2.0, 0.0).finished()); // the factor 0.5 accounts for the fact that A_L12=2*A_fcc
+                                                                /*                        */ 0.0, 1.0,
+                                                                /*                        */ 1.0,-1.0,
+                                                                //                                                                    /*                        */ 1.0,1.0,
+                                                                /*                        */ 2.0, 0.0).finished()); // the factor 0.5 accounts for the fact that A_L12=2*A_fcc
                 const Eigen::Matrix<double,6,3> f111((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0,
                                                       /*                        */ 0.50,sqrt(3.0)/6.0, CISF,
                                                       /*                        */ 1.00,sqrt(3.0)/3.0,SESF,
@@ -188,11 +175,9 @@ typename FCClattice<3>::SlipSystemContainerType FCClattice<3>::slipSystems(const
                 const int rotSymm111(3);
                 const std::vector<Eigen::Matrix<double,2,1>> mirSymm111;
                 const Eigen::Matrix<double,2,2> A111(2.0*GlidePlaneBase(a1,a3,nullptr).localBasis()); // double the matrix basis
-//                const Eigen::Matrix<double,2,2> A111(2.0*(Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
-//                                                                                 0.0,0.5*std::sqrt(3.0)).finished());
                 std::shared_ptr<GammaSurface> gammaSurface111(new GammaSurface(A111,waveVectors111,f111,rotSymm111,mirSymm111));
                 const double d111(lat.reciprocalLatticeDirection(lat.C2G*(VectorDimD()<<1.0,1.0,1.0).finished()).planeSpacing());
-
+                
                 std::map<const GlidePlaneBase*,std::shared_ptr<GammaSurface>> gsMap;
                 for(const auto& pn : plN)
                 {
