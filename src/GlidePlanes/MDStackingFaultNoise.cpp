@@ -34,8 +34,15 @@ MDStackingFaultNoise::MDStackingFaultNoise(const PolycrystallineMaterialBase& ma
 
   const int originalNX = originalDimensions(0);
   const int originalNY = originalDimensions(1);
-  const int originalNR = originalNX*originalNY;
+  const int originalNZ = originalDimensions(2);
+  const int originalNR = originalNX*originalNY*originalNZ;
 
+  // compute variable energy correction factor from zero padding
+  eNormFactor = (this->NR!=originalNR ? static_cast<double>(this->NR)/static_cast<double>(originalNR) : 1.0);
+  // fftScaleFactor is the scaling factor for FFT
+  fftScaleFactor = std::pow(static_cast<double>(this->NR), 2.0);
+
+  // original input correlation array
   REAL_SCALAR *Rr_original = (REAL_SCALAR*) fftw_malloc(sizeof(REAL_SCALAR)*originalNR);
   // explicitly initialize to zeros, avoid garbarge propagation
   std::fill(Rr_original, Rr_original+originalNR, REAL_SCALAR{0.0});
@@ -85,12 +92,6 @@ MDStackingFaultNoise::MDStackingFaultNoise(const PolycrystallineMaterialBase& ma
   fftw_plan plan_R_r2c = fftw_plan_dft_r2c_2d(this->NY, this->NX, Rr, reinterpret_cast<fftw_complex*>(Rk), FFTW_ESTIMATE);
   fftw_execute(plan_R_r2c);
 
-  // Normalize the FFT output
-  for (int i = 0; i < this->NK; ++i)
-  {
-    Rk[i] /= static_cast<double>(this->NR);
-  }
-
   // Destroy FFTW plans
   fftw_destroy_plan(plan_R_r2c);
 
@@ -100,9 +101,10 @@ MDStackingFaultNoise::MDStackingFaultNoise(const PolycrystallineMaterialBase& ma
 
 std::array<MDStackingFaultNoise::COMPLEX,1> MDStackingFaultNoise::kCorrelations(const Eigen::Matrix<double, 3, 1> &kv, const Eigen::Matrix<int, 3, 1> &index) const
 {
-    std::array<MDStackingFaultNoise::COMPLEX,1> temp;
     int idx=(this->NY/2+1)*NZ*index(0) + index(1)*NZ + index(2);
-    temp[0] = Rk[idx];
+    // eNormFactor is variable energy correction factor from zero padding (1 if not padded)
+    // fftScaleFactor is the Scaling factor for FFT (match the original input scale)
+    std::array<MDStackingFaultNoise::COMPLEX,1> temp{eNormFactor*Rk[idx]/fftScaleFactor};
     return temp;
 }
 

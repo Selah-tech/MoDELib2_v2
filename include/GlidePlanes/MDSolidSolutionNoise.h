@@ -34,8 +34,13 @@ namespace model
         COMPLEX *Rk_yz;
         const REAL_SCALAR a_cai;
 
+        // variable energy correction factor from zero padding
+        REAL_SCALAR eNormFactor;
+        // fftScaleFactor is the Scaling factor for FFT
+        REAL_SCALAR fftScaleFactor;
+
         MDSolidSolutionNoise(const PolycrystallineMaterialBase& mat,
-                                    const std::string& tag, 
+                                    const std::string& tag,
                                     const std::string& correlationFile_xz, const std::string& correlationFile_yz,
                                     const int& seed, const GridSizeType& gridSize, const GridSpacingType& gridSpacing,
                                     const Eigen::Matrix<double,2,2>& latticeBasis,

@@ -32,6 +32,11 @@ namespace model
         COMPLEX *Rk;
         const std::string correlationFile;
 
+        // variable energy correction factor from zero padding
+        REAL_SCALAR eNormFactor;
+        // fftScaleFactor is the Scaling factor for FFT
+        REAL_SCALAR fftScaleFactor;
+
         MDStackingFaultNoise(const PolycrystallineMaterialBase& mat,
                              const std::string& tag,
                              const std::string& correlationFile_in,
