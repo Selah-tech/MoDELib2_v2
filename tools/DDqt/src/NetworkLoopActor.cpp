@@ -77,7 +77,7 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
 /* init */,globalMeshSizeEdit(new QLineEdit("100000000"))
 /* init */,localMeshSizeEdit(new QLineEdit("1.0"))
 /* init */,defectiveCrystal(defectiveCrystal_in)
-/* init */,dislocationNetwork(defectiveCrystal.template getUniqueTypedMicrostructure<DislocationNetwork<3,0>>())
+/* init */,dislocationNetwork(defectiveCrystal.template getUniqueTypedMicrostructure<DislocationNetwork<3>>())
 {
     
     nodeGlyphs->SetInputData(nodePolyData);

@@ -86,7 +86,7 @@ namespace model
     /* init */ renderWindow(renWin)
     /* init */,renderer(ren)
     /* init */,defectiveCrystal(defectiveCrystal_in)
-    /* init */,dislocationNetwork(defectiveCrystal.template getUniqueTypedMicrostructure<DislocationNetwork<3,0>>())
+    /* init */,dislocationNetwork(defectiveCrystal.template getUniqueTypedMicrostructure<DislocationNetwork<3>>())
     /* init */,mainLayout(new QGridLayout(this))
     /* init */,glidePlanesGroup(new QGroupBox(tr("&Planes")))
     /* init */,lut(vtkSmartPointer<vtkLookupTable>::New())

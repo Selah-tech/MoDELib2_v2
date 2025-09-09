@@ -84,7 +84,7 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renderWindow;
         vtkRenderer* const renderer;
         DefectiveCrystal<3>& defectiveCrystal;
-        const std::shared_ptr<DislocationNetwork<3,0>> dislocationNetwork;
+        const std::shared_ptr<DislocationNetwork<3>> dislocationNetwork;
         QGridLayout* mainLayout;
         QGroupBox* glidePlanesGroup;
         

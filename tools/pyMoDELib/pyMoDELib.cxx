@@ -51,7 +51,7 @@ using namespace model;
 typedef Eigen::Matrix<double,3,1> VectorDim;
 typedef Eigen::Matrix<double,3,3> MatrixDim;
 typedef GlidePlane<3> GlidePlaneType;
-typedef DislocationNetwork<3,0> DislocationNetworkType;
+typedef DislocationNetwork<3> DislocationNetworkType;
 typedef typename TypeTraits<DislocationNetworkType>::LoopNodeType LoopNodeType;
 typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
 typedef typename TypeTraits<DislocationNetworkType>::NetworkNodeType NetworkNodeType;

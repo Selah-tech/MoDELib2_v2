@@ -17,11 +17,11 @@
 namespace model
 {
 
-    template<int dim,int corder>
-    DislocationQuadraturePoint<dim,corder>::DislocationQuadraturePoint(const LinkType& parentSegment,
-                                                                       const int& q,const int& qOrder,
-                                                                       const MatrixNcoeff& SFCH,
-                                                                       const MatrixNcoeffDim& qH) :
+    template<int dim>
+    DislocationQuadraturePoint<dim>::DislocationQuadraturePoint(const LinkType& parentSegment,
+                                                                const int& q,const int& qOrder,
+                                                                const MatrixNcoeff& SFCH,
+                                                                const MatrixNcoeffDim& qH) :
     /* init */ sourceID(parentSegment.source->sID)
     /* init */,sinkID(parentSegment.sink->sID)
     /* init */,qID(q)
@@ -58,12 +58,12 @@ namespace model
         }
     }
 
-    template<int dim,int corder>
-    DislocationQuadraturePoint<dim,corder>::DislocationQuadraturePoint(const size_t sourceID_in,
-                                                                       const size_t sinkID_in,
-                                                                       const int& q,const int& qOrder,
-                                                                       const MatrixNcoeff& SFCH,
-                                                                       const MatrixNcoeffDim& qH) :
+    template<int dim>
+    DislocationQuadraturePoint<dim>::DislocationQuadraturePoint(const size_t sourceID_in,
+                                                                const size_t sinkID_in,
+                                                                const int& q,const int& qOrder,
+                                                                const MatrixNcoeff& SFCH,
+                                                                const MatrixNcoeffDim& qH) :
     /* init */ sourceID(sourceID_in)
     /* init */,sinkID(sinkID_in)
     /* init */,qID(q)
@@ -90,9 +90,8 @@ namespace model
         
     }
 
-
-    template<int dim,int corder>
-    DislocationQuadraturePoint<dim,corder>::DislocationQuadraturePoint() :
+    template<int dim>
+    DislocationQuadraturePoint<dim>::DislocationQuadraturePoint() :
     /* init */ sourceID(0)
     /* init */,sinkID(0)
     /* init */,qID(0)
@@ -119,8 +118,8 @@ namespace model
         
     }
 
-    template<int dim,int corder>
-    typename DislocationQuadraturePoint<dim,corder>::MatrixDimNdof DislocationQuadraturePoint<dim,corder>::SFgaussEx() const
+    template<int dim>
+    typename DislocationQuadraturePoint<dim>::MatrixDimNdof DislocationQuadraturePoint<dim>::SFgaussEx() const
     { /*! The MatrixDimNdof matrix of shape functions at the k-th quadrature point
        */
         MatrixDimNdof temp(MatrixDimNdof::Zero());
@@ -131,17 +130,15 @@ namespace model
         return temp;
     }
 
-
-    //        template<typename LinkType>
-    template<int dim,int corder>
-    typename DislocationQuadraturePoint<dim,corder>::VectorDim  DislocationQuadraturePoint<dim,corder>::getGlideVelocity(const LinkType& parentSegment,
-                                                                                                                         const VectorDim& , // position x
-                                                                                                                         const VectorDim& fPK,
-                                                                                                                         const MatrixDim& S,
-                                                                                                                         const VectorDim& rl,
-                                                                                                                         const double& dL,
-                                                                                                                         const int& inclusionID
-                                                                                                                         )
+    template<int dim>
+    typename DislocationQuadraturePoint<dim>::VectorDim  DislocationQuadraturePoint<dim>::getGlideVelocity(const LinkType& parentSegment,
+                                                                                                           const VectorDim& , // position x
+                                                                                                           const VectorDim& fPK,
+                                                                                                           const MatrixDim& S,
+                                                                                                           const VectorDim& rl,
+                                                                                                           const double& dL,
+                                                                                                           const int& inclusionID
+                                                                                                           )
     {
         // std::cout<<"parentSegment "<<parentSegment.tag()<<" has slipSystem Compare to nullPtr"<<(parentSegment.slipSystem()==nullptr)<<std::endl;
         
@@ -219,8 +216,8 @@ namespace model
         
     }
 
-    template<int dim,int corder>
-    void DislocationQuadraturePoint<dim,corder>::updateForcesAndVelocities(const LinkType& parentSegment,const bool& isClimbStep)
+    template<int dim>
+    void DislocationQuadraturePoint<dim>::updateForcesAndVelocities(const LinkType& parentSegment,const bool& isClimbStep)
     {
         
         const bool useSplineTangents(false);
@@ -243,7 +240,7 @@ namespace model
             const VectorDim node3(ll->source->networkNode==parentSegment.source? nextNodePos : prevNodePos);
             
             CatmullRomSplineSegment<dim> cmSeg(node0,node1,node2,node3);
-//            const double paramU(QuadratureDynamicType::abscissa(parentSegment.quadraturePoints().size(),qID));
+            //            const double paramU(QuadratureDynamicType::abscissa(parentSegment.quadraturePoints().size(),qID));
             const VectorDim llunitTangent(cmSeg.get_rl(abscissa));
             
             pkForce=(stress*parentSegment.burgers()).cross(llunitTangent);
@@ -258,7 +255,7 @@ namespace model
         }
         if(isClimbStep && parentSegment.network().climbSolver)
         {
-//            cCD=eval(parentSegment.network().climbSolver->CD->mobileClusters)(r,parentSegment.source->includingSimplex());
+            //            cCD=eval(parentSegment.network().climbSolver->CD->mobileClusters)(r,parentSegment.source->includingSimplex());
             cCD.setZero();
             for(const auto& microstructure : parentSegment.network().microstructures)
             {
@@ -271,9 +268,8 @@ namespace model
         }
     }
 
-    //        template<typename LinkType>
-    template<int dim,int corder>
-    typename DislocationQuadraturePoint<dim,corder>::MatrixDim DislocationQuadraturePoint<dim,corder>::forceToStress(const VectorDim& force,const VectorDim& unitTangent,const LinkType& parentSegment) const
+    template<int dim>
+    typename DislocationQuadraturePoint<dim>::MatrixDim DislocationQuadraturePoint<dim>::forceToStress(const VectorDim& force,const VectorDim& unitTangent,const LinkType& parentSegment) const
     {
         // std::cout<<" Curvature norm "<<cmSeg.get_rll(paramU).norm()<<std::endl;
         const double burgersNorm(parentSegment.burgers().norm());
@@ -299,20 +295,18 @@ namespace model
         return MatrixDim::Zero();
     }
 
-    template struct DislocationQuadraturePoint<3,0>;
+    template struct DislocationQuadraturePoint<3>;
 
-
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::VectorNdof DislocationQuadraturePointContainer<dim,corder>::nodalVelocityLinearKernel(const int& k) const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::VectorNdof DislocationQuadraturePointContainer<dim>::nodalVelocityLinearKernel(const int& k) const
     { /*!@param[in] k the current quadrature point
        *\returns The kernel N^T(k)*v(k)*j(k)
        */
         return quadraturePoint(k).SFgaussEx().transpose()*quadraturePoint(k).velocity*quadraturePoint(k).j;
     }
 
-
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::MatrixNdof DislocationQuadraturePointContainer<dim,corder>::nodalVelocityBilinearKernel(const int& k) const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::MatrixNdof DislocationQuadraturePointContainer<dim>::nodalVelocityBilinearKernel(const int& k) const
     { /*! @param[in] k the current quadrature point
        *  The stiffness matrix integrand evaluated at the k-th quadrature point.
        *	\f[
@@ -323,9 +317,8 @@ namespace model
         return SFEx.transpose()*SFEx*quadraturePoint(k).j;
     }
 
-
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::VectorDim DislocationQuadraturePointContainer<dim,corder>::pkKernel(const int& k) const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::VectorDim DislocationQuadraturePointContainer<dim>::pkKernel(const int& k) const
     { /*!@param[in] k the current quadrature point
        *\returns dF_PK/du=dF_PK/dL*dL/du at quadrature point k, where
        * u in [0,1] is the spline parametrization
@@ -333,10 +326,8 @@ namespace model
         return quadraturePoint(k).pkForce*quadraturePoint(k).j;
     }
 
-
-    //Added by Yash
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::MatrixDim DislocationQuadraturePointContainer<dim,corder>::stressKernel(const int& k) const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::MatrixDim DislocationQuadraturePointContainer<dim>::stressKernel(const int& k) const
     { /*!@param[in] k the current quadrature point
        *\returns d_sigma/du=d_sigma/dL*dL/du at quadrature point k, where
        * u in [0,1] is the spline parametrization
@@ -344,31 +335,31 @@ namespace model
         return quadraturePoint(k).stress*quadraturePoint(k).j;
     }
 
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::VectorDim DislocationQuadraturePointContainer<dim,corder>::glideVelocityKernel(const int& k) const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::VectorDim DislocationQuadraturePointContainer<dim>::glideVelocityKernel(const int& k) const
     {
         return quadraturePoint(k).velocity*this->quadraturePoint(k).j;
     }
 
-    template<int dim,int corder>
-    void DislocationQuadraturePointContainer<dim,corder>::updateKernel(const LinkType& parentSegment,
-                                                                                          const StraightDislocationSegment<dim>& ss,
-                                                                                          const double& L0,
-                                                                                          const VectorDim& c)
+    template<int dim>
+    void DislocationQuadraturePointContainer<dim>::updateKernel(const LinkType& parentSegment,
+                                                                const StraightDislocationSegment<dim>& ss,
+                                                                const double& L0,
+                                                                const VectorDim& c)
     {
         for(const auto& shift : parentSegment.network().ddBase.periodicShifts)
         {
-//            std::cout<<"shift="<<shift.transpose()<<std::endl;
-
+            //            std::cout<<"shift="<<shift.transpose()<<std::endl;
+            
             SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
             //                        const double dr(ssd.dMin/(L0+ss.length));
             const double dr(ssd.dMin/(L0));
-
+            
             if(dr<10.0)
             {// full interaction
                 for (auto& qPoint : quadraturePoints())
                 {
-//                    std::cout<<"qPoint="<<qPoint.qID<<", r="<<qPoint.r.transpose()<<std::endl;
+                    //                    std::cout<<"qPoint="<<qPoint.qID<<", r="<<qPoint.r.transpose()<<std::endl;
                     qPoint.stress += ss.stress(qPoint.r+shift);
                 }
             }
@@ -389,7 +380,7 @@ namespace model
                     qPoint.stress += stressC;
                 }
             }
-                        
+            
             if(parentSegment.network().computeElasticEnergyPerLength)
             {
                 for (auto& qPoint : quadraturePoints())
@@ -401,11 +392,11 @@ namespace model
         }
     }
 
-    template<int dim,int corder>
-    void DislocationQuadraturePointContainer<dim,corder>::update(const LinkType& parentSegment,const bool& isClimbStep)
+    template<int dim>
+    void DislocationQuadraturePointContainer<dim>::update(const LinkType& parentSegment,const bool& isClimbStep)
     {
-//        std::cout<<parentSegment.tag()<<" updating"<<std::endl;
-
+        //        std::cout<<parentSegment.tag()<<" updating"<<std::endl;
+        
         const bool useLoopBasedKernels(false);
         
         if(this->size())
@@ -450,7 +441,7 @@ namespace model
                     }
                 }
             }
-                        
+            
             // Stacking fault contribution in the matrix
             if(parentSegment.slipSystem() && parentSegment.glidePlanes().size()==1)
             {
@@ -519,7 +510,7 @@ namespace model
                         }
                     }
                 }
-                                
+                
                 // Add solid-soution noise
                 if(slipSystem.planeNoise)
                 {
@@ -530,7 +521,7 @@ namespace model
                     }
                 }
             }
-                        
+            
             for (auto& qPoint : quadraturePoints())
             {
                 
@@ -538,21 +529,21 @@ namespace model
                 if (parentSegment.network().alphaLineTension>0.0 && !parentSegment.hasZeroBurgers() && parentSegment.chordLength()>FLT_EPSILON)
                 {
                     //Add the line tension contribution due to only non -zero segments
-//                    for (const auto &ll : parentSegment.loopLinks())
-//                    {
-//                        const double paramU (ll->source->networkNode==parentSegment.source ? qPoint.abscissa : 1.0-qPoint.abscissa);
-//                        const auto spline(ll->spline());
-//                        const VectorDim llunitTangent(spline.get_rl(paramU));
-//                        const double qPointEnergyDensity (parentSegment.network().alphaLineTension * parentSegment.network().ddBase.poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().ddBase.poly.nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
-//                        qPoint.coreEnergyPerLength+=qPointEnergyDensity;
-//                        
-//                        const VectorDim rll(spline.get_rll(paramU));
-//                        if(!std::isnan(rll.squaredNorm()))
-//                        {// curvature can be nan for straight lines
-//                            const VectorDim qPointForceVector (qPointEnergyDensity * rll);
-//                            qPoint.lineTensionForce+=qPointForceVector;
-//                        }
-//                    }
+                    //                    for (const auto &ll : parentSegment.loopLinks())
+                    //                    {
+                    //                        const double paramU (ll->source->networkNode==parentSegment.source ? qPoint.abscissa : 1.0-qPoint.abscissa);
+                    //                        const auto spline(ll->spline());
+                    //                        const VectorDim llunitTangent(spline.get_rl(paramU));
+                    //                        const double qPointEnergyDensity (parentSegment.network().alphaLineTension * parentSegment.network().ddBase.poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().ddBase.poly.nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
+                    //                        qPoint.coreEnergyPerLength+=qPointEnergyDensity;
+                    //
+                    //                        const VectorDim rll(spline.get_rll(paramU));
+                    //                        if(!std::isnan(rll.squaredNorm()))
+                    //                        {// curvature can be nan for straight lines
+                    //                            const VectorDim qPointForceVector (qPointEnergyDensity * rll);
+                    //                            qPoint.lineTensionForce+=qPointForceVector;
+                    //                        }
+                    //                    }
                     
                     // Collect burgers,tangent,curvature for each loopLink
                     std::vector<std::tuple<VectorDim,VectorDim,VectorDim>> linkSplineVector; // burgers,tangent,curvature
@@ -596,20 +587,17 @@ namespace model
                         qPoint.stress += microstructure->stress(qPoint.r,nullptr,nullptr,parentSegment.source->includingSimplex());
                     }
                 }
-                                
+                
                 qPoint.updateForcesAndVelocities(parentSegment,isClimbStep);
             }
             
         }
     }
 
-
-
-    //        template<typename LinkType>
-    template<int dim,int corder>
-    void DislocationQuadraturePointContainer<dim,corder>::create(const LinkType& parentSegment,
-                                                                                 const double& quadPerLength,
-                                                                                 const bool& isClimbStep)
+    template<int dim>
+    void DislocationQuadraturePointContainer<dim>::create(const LinkType& parentSegment,
+                                                          const double& quadPerLength,
+                                                          const bool& isClimbStep)
     {
         
         this->clear();
@@ -629,41 +617,26 @@ namespace model
         }
     }
 
-
-    template<int dim,int corder>
-    const typename DislocationQuadraturePointContainer<dim,corder>::DislocationQuadraturePointContainerType& DislocationQuadraturePointContainer<dim,corder>::quadraturePoints() const
+    template<int dim>
+    const typename DislocationQuadraturePointContainer<dim>::DislocationQuadraturePointContainerType& DislocationQuadraturePointContainer<dim>::quadraturePoints() const
     {
         return *this;
     }
 
-
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::DislocationQuadraturePointContainerType& DislocationQuadraturePointContainer<dim,corder>::quadraturePoints()
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::DislocationQuadraturePointContainerType& DislocationQuadraturePointContainer<dim>::quadraturePoints()
     {
         return *this;
     }
 
-
-    template<int dim,int corder>
-    const typename DislocationQuadraturePointContainer<dim,corder>::DislocationQuadraturePointType& DislocationQuadraturePointContainer<dim,corder>::quadraturePoint(const int& k) const
+    template<int dim>
+    const typename DislocationQuadraturePointContainer<dim>::DislocationQuadraturePointType& DislocationQuadraturePointContainer<dim>::quadraturePoint(const int& k) const
     {
         return this->operator[](k);
     }
 
-
-
-
-    // VectorNdof nodalVelocityVector() const
-    // { /*\returns The segment-integrated nodal velocity vector int N^T*v dL
-    //    */
-    //     VectorNdof Fq(VectorNdof::Zero());
-    //     QuadratureDynamicType::integrate(this->size(),this,Fq,&DislocationQuadraturePointContainerType::nodalVelocityLinearKernel);
-    //     return Fq;
-    // }
-
-    //        template<typename LinkType>
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::VectorNdof DislocationQuadraturePointContainer<dim,corder>::nodalVelocityVector(const LinkType& parentSegment) const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::VectorNdof DislocationQuadraturePointContainer<dim>::nodalVelocityVector(const LinkType& parentSegment) const
     { /*\returns The segment-integrated nodal velocity vector int N^T*v dL
        */
         VectorNdof Fq(VectorNdof::Zero());
@@ -674,33 +647,39 @@ namespace model
         return Fq;
     }
 
-
-    //        template<typename LinkType>
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::MatrixNdof DislocationQuadraturePointContainer<dim,corder>::nodalVelocityMatrix(const LinkType& parentSegment) const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::MatrixNdof DislocationQuadraturePointContainer<dim>::nodalVelocityMatrix(const LinkType& parentSegment) const
     {
-        MatrixNdof Kqq(MatrixNdof::Zero());
-        if(corder==0)
-        {// Analytical integral can be performed
-            const double L(parentSegment.chordLength());
-            Kqq<<L/3.0,  0.0,  0.0, L/6.0,  0.0,  0.0,
-            /**/   0.0,L/3.0,  0.0,   0.0,L/6.0,  0.0,
-            /**/   0.0,  0.0,L/3.0,   0.0,  0.0,L/6.0,
-            /**/ L/6.0,  0.0,  0.0, L/3.0,  0.0,  0.0,
-            /**/   0.0,L/6.0,  0.0,   0.0,L/3.0,  0.0,
-            /**/   0.0,  0.0,L/6.0,   0.0,  0.0,L/3.0;
-        }
-        else
-        {// Numerical integral must be performed
-            assert(0 && "WE NEED TO INCREASE qOrder FOR THE FOLLOWING INTEGRATION, SINCE EVEN FOR LINEAR SEGMENTS Kqq IS NOT INTEGRATED CORRECLTY FOR SMALL qOrder");
-            assert(0 && "THIS MUST RETURN A NON_ZERO VALUE EVEN FOR SEGMENTS WHICH DONT HAAVE QUADRATURE POINTS TO CORRECTLY SOVE K*V=F");
-            QuadratureDynamicType::integrate(this->size(),this,Kqq,&DislocationQuadraturePointContainerType::nodalVelocityBilinearKernel);
-        }
-        return Kqq;
+        //        MatrixNdof Kqq(MatrixNdof::Zero());
+        //        if(corder==0)
+        //        {// Analytical integral can be performed
+        //            const double L(parentSegment.chordLength());
+        //            Kqq<<L/3.0,  0.0,  0.0, L/6.0,  0.0,  0.0,
+        //            /**/   0.0,L/3.0,  0.0,   0.0,L/6.0,  0.0,
+        //            /**/   0.0,  0.0,L/3.0,   0.0,  0.0,L/6.0,
+        //            /**/ L/6.0,  0.0,  0.0, L/3.0,  0.0,  0.0,
+        //            /**/   0.0,L/6.0,  0.0,   0.0,L/3.0,  0.0,
+        //            /**/   0.0,  0.0,L/6.0,   0.0,  0.0,L/3.0;
+        //        }
+        //        else
+        //        {// Numerical integral must be performed
+        //            assert(0 && "WE NEED TO INCREASE qOrder FOR THE FOLLOWING INTEGRATION, SINCE EVEN FOR LINEAR SEGMENTS Kqq IS NOT INTEGRATED CORRECLTY FOR SMALL qOrder");
+        //            assert(0 && "THIS MUST RETURN A NON_ZERO VALUE EVEN FOR SEGMENTS WHICH DONT HAAVE QUADRATURE POINTS TO CORRECTLY SOVE K*V=F");
+        //            QuadratureDynamicType::integrate(this->size(),this,Kqq,&DislocationQuadraturePointContainerType::nodalVelocityBilinearKernel);
+        //        }
+        //        return Kqq;
+        
+        const double L(parentSegment.chordLength());
+        return (MatrixNdof()<<L/3.0,  0.0,  0.0, L/6.0,  0.0,  0.0,
+                /*         */   0.0,L/3.0,  0.0,   0.0,L/6.0,  0.0,
+                /*         */   0.0,  0.0,L/3.0,   0.0,  0.0,L/6.0,
+                /*         */ L/6.0,  0.0,  0.0, L/3.0,  0.0,  0.0,
+                /*         */   0.0,L/6.0,  0.0,   0.0,L/3.0,  0.0,
+                /*         */   0.0,  0.0,L/6.0,   0.0,  0.0,L/3.0).finished();
     }
 
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::VectorDim DislocationQuadraturePointContainer<dim,corder>::glideVelocityIntegral() const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::VectorDim DislocationQuadraturePointContainer<dim>::glideVelocityIntegral() const
     {/*!\returns The integral of the glide velocity over the segment.
       */
         VectorDim V(VectorDim::Zero());
@@ -708,8 +687,8 @@ namespace model
         return V;
     }
 
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::VectorDim DislocationQuadraturePointContainer<dim,corder>::pkIntegral() const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::VectorDim DislocationQuadraturePointContainer<dim>::pkIntegral() const
     {/*!\returns The integral of the PK force over the segment.
       */
         VectorDim F(VectorDim::Zero());
@@ -717,9 +696,8 @@ namespace model
         return F;
     }
 
-    //Added by Yash
-    template<int dim,int corder>
-    typename DislocationQuadraturePointContainer<dim,corder>::MatrixDim DislocationQuadraturePointContainer<dim,corder>::stressIntegral() const
+    template<int dim>
+    typename DislocationQuadraturePointContainer<dim>::MatrixDim DislocationQuadraturePointContainer<dim>::stressIntegral() const
     {/*!\returns The integral of the stress over the segment.
       */
         MatrixDim stressInt(MatrixDim::Zero());
@@ -727,7 +705,7 @@ namespace model
         return stressInt;
     }
 
-    template class DislocationQuadraturePointContainer<3,0>;
+    template class DislocationQuadraturePointContainer<3>;
 
 }
 #endif

@@ -66,7 +66,7 @@ namespace model
         }
     }
 
-template struct DDtimeStepper<DislocationNetwork<3,0>>;
+template struct DDtimeStepper<DislocationNetwork<3>>;
 
 } // end namespace
 #endif

@@ -419,7 +419,7 @@ namespace model
     #endif
 
 
-    template class PyGlideSolver<DislocationNetwork<3,0>>;
+    template class PyGlideSolver<DislocationNetwork<3>>;
     
 }
 #endif

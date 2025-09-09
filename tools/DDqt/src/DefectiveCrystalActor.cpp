@@ -200,9 +200,9 @@ namespace model
         {
             try
             {
-                DislocationNode<3,0>::force_count(0);
-                DislocationLoopNode<3,0>::force_count(0);
-                DislocationLoop<3,0>::force_count(0);
+                DislocationNode<3>::force_count(0);
+                DislocationLoopNode<3>::force_count(0);
+                DislocationLoop<3>::force_count(0);
                 EshelbyInclusionBase<3>::force_count(0);
 
                 configIO().read(frameID);

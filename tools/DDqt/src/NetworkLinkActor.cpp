@@ -67,7 +67,7 @@ namespace model
     /* init */,tubeMapper0(vtkSmartPointer<vtkPolyDataMapper>::New())
     /* init */,tubeActor0(vtkSmartPointer<vtkActor>::New())
     /* init */,defectiveCrystal(defectiveCrystal_in)
-    /* init */,dislocationNetwork(defectiveCrystal.template getUniqueTypedMicrostructure<DislocationNetwork<3,0>>())
+    /* init */,dislocationNetwork(defectiveCrystal.template getUniqueTypedMicrostructure<DislocationNetwork<3>>())
     {
         showLinks->setChecked(true);
         showLinks->setText("links");
