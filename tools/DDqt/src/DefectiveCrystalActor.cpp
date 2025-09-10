@@ -42,6 +42,7 @@ namespace model
         /* init */,quadrature(new QuadratureActor(renWin,ren,ddBase.poly,ddBase.simulationParameters.traitsIO))
         /* init */,chartActor(new ChartActor(ddBase.simulationParameters.traitsIO,renderWindow,ren))
         /* init */,ddField(new DDFieldWidget(renderWindow,ren,defectiveCrystal))
+        /* init */,slipSystemTab(new SlipSystemTab(defectiveCrystal))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
@@ -61,6 +62,7 @@ namespace model
             tabWidget->addTab(quadrature, tr(std::string("Quadrature").c_str()));
             tabWidget->addTab(chartActor, tr(std::string("Chart").c_str()));
             tabWidget->addTab(ddField, tr(std::string("Fields").c_str()));
+            tabWidget->addTab(slipSystemTab, tr(std::string("SlipSystems").c_str()));
 
             saveImage->setText("save PNG");
 
@@ -210,7 +212,7 @@ namespace model
                 //configFields.updateConfiguration();
                 defectiveCrystal.initializeConfiguration(*this);
                 nodes->updateConfiguration(*this);
-                segments->updateConfiguration(nodes->nodePolyData);
+                segments->updateConfiguration(nodes->nodePolyData,slipSystemTab->slipSystemColorMap);
                 loops->updateConfiguration();
                 inclusions->updateConfiguration();
 //                glidePlanes->updateConfiguration(*this);
