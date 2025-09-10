@@ -371,7 +371,8 @@ namespace model
                 const float u = acos(std::fabs(chord.normalized().dot(burgers.normalized())))*2.0/std::numbers::pi;
                 //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
                 //                            colorVector << rgb.r, rgb.g, rgb.b;
-                clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1.0-u);
+//                clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1.0-u);
+                clrVector=VectorDim::UnitX()*u+VectorDim::UnitZ()*(1.0-u);
                 break;
             }
                 
@@ -393,66 +394,7 @@ namespace model
                 
         }
         
-        //    switch (clr)
-        //    {
-        //
-        //
-        //        case colorSessile:
-        //        {
-        //            const bool isSessile= planeNormal.squaredNorm()<FLT_EPSILON || fabs(burgers.dot(planeNormal))>FLT_EPSILON;
-        //            clrVector(0)= isSessile? 1.0 : 0.1;
-        //            clrVector(1)= isSessile? 0.5 : 0.4;
-        //            clrVector(2)= isSessile? 0.0 : 0.9;
-        //            break;
-        //        }
-        //
-        //        case colorNormal:
-        //        {
-        //            clrVector=planeNormal;
-        //            break;
-        //        }
-        //
-        //        case colorEdgeScrew:
-        //        {
-        //            const float u = acos(std::fabs(chord.normalized().dot(burgers.normalized())))*2.0/std::numbers::pi;
-        //            //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
-        //            //                            colorVector << rgb.r, rgb.g, rgb.b;
-        //            clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1-u);
-        //            break;
-        //        }
-        //            //                    break;
-        //
-        //        default:
-        //            clrVector = burgers.normalized();
-        //            //                    flipColor(colorVector);
-        //            break;
-        //    }
-        
         return Vector2Color::v2c(clrVector);
-        
-        //    float clrTol=100.0*FLT_EPSILON;
-        //    if(clrVector(0)<-clrTol)
-        //    {// first component not zero but begative, flip color
-        //        clrVector*=-1.0;
-        //    }
-        //    else if(fabs(clrVector(0))<=clrTol)
-        //    {// first component is zero, use second component
-        //        if(clrVector(1)<-clrTol)
-        //        {// second component not zero but begative, flip color
-        //            clrVector*=-1.0;
-        //        }
-        //        else if(fabs(clrVector(1))<=clrTol)
-        //        {// second component is zero, use third component
-        //            if(clrVector(2)<-clrTol)
-        //            {
-        //                clrVector*=-1.0;
-        //            }
-        //        }
-        //    }
-        //
-        //    clrVector = (clrVector + VectorDim::Ones(dim) * clrVector.norm()).eval();
-        //    clrVector.normalize();
-        //    return (clrVector*255).cast<int>();
     }
 
 

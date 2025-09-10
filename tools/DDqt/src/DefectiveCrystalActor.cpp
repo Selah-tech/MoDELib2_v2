@@ -213,7 +213,7 @@ namespace model
                 defectiveCrystal.initializeConfiguration(*this);
                 nodes->updateConfiguration(*this);
                 segments->updateConfiguration(nodes->nodePolyData,slipSystemTab->slipSystemColorMap);
-                loops->updateConfiguration();
+                loops->updateConfiguration(slipSystemTab->slipSystemColorMap);
                 inclusions->updateConfiguration();
 //                glidePlanes->updateConfiguration(*this);
                 glidePlanes->updateConfiguration();
