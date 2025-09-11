@@ -50,7 +50,8 @@ class SlipSystemButton : public QPushButton
         void changeColor();
         void setBurgersColor();
         void setNormalColor();
-
+        void setFamilyColor();
+        
 //        void modify();
 //        void reload();
 //        void updatePlots();
