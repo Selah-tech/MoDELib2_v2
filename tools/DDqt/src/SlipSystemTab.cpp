@@ -142,15 +142,7 @@ void SlipSystemTab::setFamilyColor()
     {
         const std::pair<float,float> key(pair.first->s.cartesian().squaredNorm(),pair.first->n.cartesian().squaredNorm());
         ssFamilyMap[key].insert(pair.first);
-        
-//        const auto clr(Vector2Color::v2c(pair.first->unitNormal));
-//        const auto clr(Vector2Color::v2c(pair.first->n.base().cast<double>()));
- //       pair.second->setStyleSheet(QString::fromStdString("background-color: rgb("+std::to_string(clr(0))+","
- //                                                           /*                    */+std::to_string(clr(1))+","
- //                                                           /*                    */+std::to_string(clr(2))+");"));
-
     }
-    
     
     vtkSmartPointer<vtkLookupTable> familyLut(vtkSmartPointer<vtkLookupTable>::New());
 //    familyLut->SetHueRange(0.66667, 0.0);
@@ -160,7 +152,6 @@ void SlipSystemTab::setFamilyColor()
     int fID(0);
     for(const auto& pair : ssFamilyMap)
     {
-        
         for(const auto& ss : pair.second)
         {
             const auto ssIter(slipSystemColorMap.find(ss));
@@ -170,18 +161,13 @@ void SlipSystemTab::setFamilyColor()
                 familyLut->GetColor(fID, dclr);
                 std::cout<<dclr[0]<<","<<dclr[1]<<","<<dclr[2]<<std::endl;
 
-                
                 ssIter->second->setStyleSheet(QString::fromStdString("background-color: rgb("+std::to_string(int(dclr[0]*255))+","
                                                                     /*                    */+std::to_string(int(dclr[1]*255))+","
                                                                     /*                    */+std::to_string(int(dclr[2]*255))+");"));
-
             }
         }
         fID++;
     }
-
-
-    
 }
 
 

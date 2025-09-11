@@ -65,6 +65,9 @@
 #include <vtkGlyph3D.h>
 #include <vtkArrowSource.h>
 #include <vtkDoubleArray.h>
+#include <vtkLabeledDataMapper.h>
+#include <vtkActor2D.h>
+#include <vtkProperty2D.h>
 
 #include <TextFileParser.h>
 
@@ -122,6 +125,7 @@ namespace model
     public:
         QGridLayout* mainLayout;
         QCheckBox* showMesh;
+        QCheckBox* showExternalFaceIDs;
         QCheckBox* showFaceBoundaries;
 //        QCheckBox* showGrainColors;
         QCheckBox* showRegionBoundaries;
@@ -132,6 +136,10 @@ namespace model
  //       QSlider* sliderAxes;
 
         QCheckBox* showPeriodicityVectors;
+
+        vtkSmartPointer<vtkPolyData> labelPolyData;
+        vtkSmartPointer<vtkLabeledDataMapper> labelMapper;
+        vtkSmartPointer<vtkActor2D> labelActor;
 
         
         vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
