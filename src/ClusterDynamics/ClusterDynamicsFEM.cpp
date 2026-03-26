@@ -12,6 +12,7 @@
 #include <ClusterDynamicsFEM.h>
 #include <ExternalAndInternalBoundary.h>
 #include <Fix.h>
+#include <TextFileParser.h>
 
 namespace model
 {
@@ -79,6 +80,7 @@ template struct InvDscaling<3>;
     /* init */,dmBWF((test(grad(iDs*mobileClustersIncrement)),-ddBase.poly.Omega*(FluxMatrix<dim>(this->cdp)*grad(mobileClustersIncrement)))*dV)
     /* init */,mSolver(true,FLT_EPSILON)
     /* init */,solverInitialized(false)
+    /* init */,useDirichletBC(bool(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("useClusterDynamicsDirichletBC",false)))
 //    /* init */,cascadeGlobalProduction(((test(this->mobileClusters),make_constant(this->cdp.G))*dV).globalVector())
     /* init */,cascadeGlobalProduction(((test(iDs*this->mobileClusters),make_constant(this->cdp.G))*dV).globalVector())
     {
@@ -171,8 +173,11 @@ template struct InvDscaling<3>;
             allComps[k]=true;
         }
         
-        mobileClusters.addDirichletCondition(nodeListInternalExternal,Fix(),allComps); // apply to the four components of c
-        mobileClustersIncrement.addDirichletCondition(nodeListInternalExternal,Fix(),allComps); // apply to the four components of c
+        if(useDirichletBC)
+        {
+            mobileClusters.addDirichletCondition(nodeListInternalExternal,Fix(),allComps); // apply to the four components of c
+            mobileClustersIncrement.addDirichletCondition(nodeListInternalExternal,Fix(),allComps); // apply to the four components of c
+        }
         mSolver.compute(mBWF); // call this after assigning the BCs
         solverInitialized=true;
     }
