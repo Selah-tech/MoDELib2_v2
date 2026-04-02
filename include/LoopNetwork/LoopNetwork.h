@@ -167,6 +167,9 @@ namespace model
                             std::shared_ptr<LoopType> newLoop(loops().clone(loop->key));
                             
                             const bool netNodesClonable(Ni->networkNode->loopNodes().size()==1 && Nj->networkNode->loopNodes().size()==1);
+                            VerboseLoopNetwork(1,"cutLoop clone gate netNodesClonable="<<netNodesClonable
+                                               <<" Ni.netLoopNodes="<<Ni->networkNode->loopNodes().size()
+                                               <<" Nj.netLoopNodes="<<Nj->networkNode->loopNodes().size()<<std::endl;);
                             const auto cloneNi(loopNodes().clone(Ni->key,newLoop,netNodesClonable? networkNodes().clone(Ni->networkNode->sID) : Ni->networkNode));
                             const auto cloneNj(loopNodes().clone(Nj->key,newLoop,netNodesClonable? networkNodes().clone(Nj->networkNode->sID) : Nj->networkNode));
                             
@@ -425,6 +428,7 @@ namespace model
             if(Nj->isContractableTo(Ni))
             {
                 std::deque<std::pair<const LoopNodeType* const,const LoopNodeType* const>> loopNodesToContract;
+                std::deque<std::pair<const LoopNodeType* const,const LoopNodeType* const>> loopNodesDifferentLoop;
 
                 // Contraction should get a precendence over reassignment
                 for(const auto& loopNodeI : Ni->loopNodes())
@@ -437,12 +441,21 @@ namespace model
                                 // std::cout<<"Contractable loop nodes networkID "<<loopNodeI->networkNode->sID<<" -> "<<loopNodeJ->networkNode->sID<<std::endl;
                                 loopNodesToContract.emplace_back(loopNodeI,loopNodeJ);
                             }
+                            else
+                            {
+                                loopNodesDifferentLoop.emplace_back(loopNodeI,loopNodeJ);
+                            }
                            
                         }
                 }
+                VerboseLoopNetwork(1,"contractNetworkNodes "<<Ni->sID<<"<-"<<Nj->sID
+                                   <<" sameLoopPairs="<<loopNodesToContract.size()
+                                   <<" differentLoopPairs="<<loopNodesDifferentLoop.size()<<std::endl;);
                 
                 for(const auto pair : loopNodesToContract)
                 {
+                    VerboseLoopNetwork(2,"contractLoopNodes "<<pair.first->sID<<" <- "<<pair.second->sID
+                                       <<" loopID="<<pair.first->loop()->sID<<std::endl;);
                     contractLoopNodes(pair.first,pair.second);
                     
                 }
@@ -465,6 +478,9 @@ namespace model
                 
                 for(auto& pair : loopNodesToReassign)
                 {
+                    VerboseLoopNetwork(2,"reassign loopNode "<<pair.second->sID<<" netNode "
+                                       <<pair.second->networkNode->sID<<" -> "<<pair.first->networkNode->sID
+                                       <<" (loop "<<pair.second->loop()->sID<<")"<<std::endl;);
                     pair.second->networkNode->removeLoopNode(pair.second);
                     // std::cout<<"Coming here 1"<<std::endl;
                     pair.second->networkNode=pair.first->networkNode;
