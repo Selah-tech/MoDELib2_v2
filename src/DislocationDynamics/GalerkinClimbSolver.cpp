@@ -15,6 +15,7 @@
 #include <GalerkinClimbSolver.h>
 #include <TerminalColors.h>
 #include <EqualIteratorRange.h>
+#include <TextFileParser.h>
 
 namespace model
 {
@@ -89,6 +90,98 @@ namespace model
     template <typename DislocationNetworkType>
     void GalerkinClimbSolver<DislocationNetworkType>::computeClimbScalarVelocitiesBulk()
     {
+        const bool useLumpedSolver=bool(TextFileParser(this->DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("useLumpedClimbSolver",false));
+        if(!useLumpedSolver)
+        {
+            std::vector<Eigen::VectorXd> Fc(mSize,Eigen::VectorXd::Zero(this->DN.networkNodes().size()));
+            std::vector<std::vector<Eigen::Triplet<double>>> lhsT(mSize);
+            for(const auto& fieldLink : this->DN.networkLinks())
+            {
+                if(   !fieldLink.second.lock()->hasZeroBurgers()
+                   && fieldLink.second.lock()->isSessile()
+                   && !fieldLink.second.lock()->isBoundarySegment()
+                   && !fieldLink.second.lock()->isGrainBoundarySegment()
+                   &&  fieldLink.second.lock()->chordLength()>FLT_EPSILON
+                   )
+                {
+                    const size_t i0(fieldLink.second.lock()->source->gID());
+                    const size_t i1(fieldLink.second.lock()->  sink->gID());
+                    const ForceVectorMatrixType fc(clusterForceVector(*fieldLink.second.lock()));
+                    for(int kc=0; kc<mSize; ++kc)
+                    {
+                        Fc[kc](i0)+=fc(0,kc);
+                        Fc[kc](i1)+=fc(1,kc);
+                    }
+                    for(const auto& sourceLink : this->DN.networkLinks())
+                    {
+                        if(   !sourceLink.second.lock()->hasZeroBurgers()
+                           && !sourceLink.second.lock()->isBoundarySegment()
+                           && !sourceLink.second.lock()->isGrainBoundarySegment()
+                           &&  sourceLink.second.lock()->chordLength()>FLT_EPSILON
+                           )
+                        {
+                            const size_t j0(sourceLink.second.lock()->source->gID());
+                            const size_t j1(sourceLink.second.lock()->  sink->gID());
+                            const StiffnessMatrixType kcc(clusterStiffnessMatrix(*fieldLink.second.lock(),*sourceLink.second.lock()));
+                            for(int kc=0; kc<mSize; ++kc)
+                            {
+                                const Eigen::Matrix<double,2,2> kccs(kcc.template block<2,2>(2*kc,0));
+                                lhsT[kc].emplace_back(i0,j0,0.5*kccs(0,0));
+                                lhsT[kc].emplace_back(i0,j1,0.5*kccs(0,1));
+                                lhsT[kc].emplace_back(i1,j0,0.5*kccs(1,0));
+                                lhsT[kc].emplace_back(i1,j1,0.5*kccs(1,1));
+
+                                lhsT[kc].emplace_back(j0,i0,0.5*kccs(0,0));
+                                lhsT[kc].emplace_back(j1,i0,0.5*kccs(0,1));
+                                lhsT[kc].emplace_back(j0,i1,0.5*kccs(1,0));
+                                lhsT[kc].emplace_back(j1,i1,0.5*kccs(1,1));
+                            }
+                        }
+                    }
+                }
+            }
+
+            std::vector<Eigen::Array<double,1,mSize>> nodeV(this->DN.networkNodes().size(),Eigen::Array<double,1,mSize>::Zero());
+            for(int kc=0; kc<mSize; ++kc)
+            {
+                Eigen::SparseMatrix<double> Kcc(this->DN.networkNodes().size(),this->DN.networkNodes().size());
+                Kcc.setFromTriplets(lhsT[kc].begin(),lhsT[kc].end());
+                Kcc.makeCompressed();
+
+                Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> ldltSolver;
+                ldltSolver.compute(Kcc);
+                Eigen::VectorXd vk(Eigen::VectorXd::Zero(this->DN.networkNodes().size()));
+                if(ldltSolver.info()==Eigen::Success)
+                {
+                    vk=ldltSolver.solve(Fc[kc]);
+                }
+                else
+                {
+                    Eigen::SparseLU<Eigen::SparseMatrix<double>> luSolver;
+                    luSolver.compute(Kcc);
+                    if(luSolver.info()!=Eigen::Success)
+                    {
+                        throw std::runtime_error("GalerkinClimbSolver: full solver decomposition failed.");
+                    }
+                    vk=luSolver.solve(Fc[kc]);
+                    if(luSolver.info()!=Eigen::Success)
+                    {
+                        throw std::runtime_error("GalerkinClimbSolver: full solver linear solve failed.");
+                    }
+                }
+                for(size_t n=0; n<this->DN.networkNodes().size(); ++n)
+                {
+                    nodeV[n](kc)=vk(n);
+                }
+            }
+            this->scalarVelocities().resize(this->DN.networkNodes().size(),Eigen::Array<double,1,mSize>::Zero());
+            for(size_t k=0; k<this->DN.networkNodes().size();++k)
+            {
+                this->scalarVelocities()[k]=nodeV[k];
+            }
+            return;
+        }
+
 //        std::vector<std::vector<Eigen::Triplet<double>>> lhsT(mSize);
         std::vector<Eigen::VectorXd> Fc(mSize,Eigen::VectorXd::Zero(this->DN.networkNodes().size()));
         std::vector<Eigen::VectorXd> KKc(mSize,Eigen::VectorXd::Zero(this->DN.networkNodes().size()));
