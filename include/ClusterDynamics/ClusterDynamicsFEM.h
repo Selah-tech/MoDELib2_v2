@@ -130,6 +130,7 @@ namespace model
 
         MobileSolverType mSolver;
         bool solverInitialized;
+        const bool useDirichletBC;
 
         const Eigen::VectorXd cascadeGlobalProduction;
 
@@ -146,4 +147,3 @@ namespace model
     
 }
 #endif
-

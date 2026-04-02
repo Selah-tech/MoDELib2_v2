@@ -166,8 +166,11 @@ void ClusterDynamics<dim>::applyBoundaryConditions()
             {
                 clusterDynamicsFEM->initializeSolver();
             }
-            std::cout<<", mobile BCs"<<std::flush;
-            applyBoundaryConditions();
+            if(clusterDynamicsFEM->useDirichletBC)
+            {
+                std::cout<<", mobile BCs"<<std::flush;
+                applyBoundaryConditions();
+            }
             clusterDynamicsFEM->solve();
         }
         else
